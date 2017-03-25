@@ -22,17 +22,18 @@ Stage1.prototype._compilePlan = function () {
 		sourceTerrain[4] = "wall";
 		var workablePositions = _.filter(sourceTerrain, (pos) => {return pos.terrain !== "wall"}).length;
 		for (var i2 = 0; i2 < workablePositions; i2++) {
-			var luid = utils.luid();
-			plan.harvesterJobs[luid] = {
-				role_id: luid,
+			var pos = workablePositions[i2];
+			var uid = `stationary_worker_${pos.x}_${pos.y}`;
+			plan.harvesterJobs[uid] = {
+				role_id: uid,
 				role: "stationary_worker",
 				design: {
 					name: "lazy_employee",
-					work: 1,
+					work: 2,
 					carry: 1,
 					move: 1
 				},
-				pos: workablePositions[i2]
+				pos: pos
 			};
 		}
 	}
