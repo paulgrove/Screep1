@@ -11,7 +11,7 @@ inherits(Stage1, StageBase);
 Stage1.prototype._compilePlan = function () {
 	var sources = this.roomCtl.room.find(FIND_SOURCES);
 	var plan = {
-		harvesterJobs: {}
+		creepJobs: {}
 	};
 	var i = 0;
 	for (var i = 0; i < sources.length; i++) {
@@ -22,8 +22,8 @@ Stage1.prototype._compilePlan = function () {
 		for (var i2 = 0; i2 < workablePositions; i2++) {
 			var pos = workablePositions[i2];
 			var uid = `stationary_worker_${pos.x}_${pos.y}`;
-			plan.harvesterJobs[uid] = {
-				role_id: uid,
+			plan.creepJobs[uid] = {
+				id: uid,
 				role: "stationary_worker",
 				design: {
 					name: "lazy_employee",

@@ -51,7 +51,7 @@ RoomController.prototype.run = function () {
 			console.log(`No plan for room ${this.room.name}`);
 			continue;
 		}
-		this.recruitCreeps();
+		this.runCreeps();
 	}
 }
 
@@ -65,7 +65,23 @@ RoomController.prototype.checkTime = function (timerName, timeout) {
 	return true;
 }
 
-RoomController.prototype.recruitCreeps = function () {
+RoomController.prototype.runCreeps = function () {
+	var plan = this.plan();
+	for (creepName in this.room.creeps) {
+		var creep = this.room.creeps[creepName];
+		if (!creep.memory.jobId || !plan.creepJobs[creep.memory.jobId]) {
+			this.findJobForCreep(creep);
+		}
+		this.doActionForCreep(creep);
+	}
+};
+
+RoomController.prototype.findJobForCreep = function (creep) {
+
+};
+
+RoomController.prototype.doActionForCreep = function (creep) {
+
 };
 
 RoomController.prototype.updatePlan = function () {
