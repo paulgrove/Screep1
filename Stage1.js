@@ -1,18 +1,16 @@
 var inherits = require("inherits");
 var StageBase = require("StageBase");
 var utils = require("utils");
-//var WorkerLevel1Generic = require("WorkerLevel1Generic");
 
-function Stage1(room) {
-	this._super(room);
+function Stage1(roomCtl) {
+	this._super(roomCtl);
 }
 
 inherits(Stage1, StageBase);
 
 Stage1.prototype._compilePlan = function () {
-	var sources = this.room.find(FIND_SOURCES);
+	var sources = this.roomCtl.room.find(FIND_SOURCES);
 	var plan = {
-		stage: 1,
 		harvesterJobs: {}
 	};
 	var i = 0;
@@ -20,7 +18,7 @@ Stage1.prototype._compilePlan = function () {
 		var source = sources[i];
 		var sourceTerrain = utils.getTerrain9GridFlatten(source.pos);
 		sourceTerrain[4] = "wall";
-		var workablePositions = _.filter(sourceTerrain, (pos) => {return pos.terrain !== "wall"}).length;
+		var workablePositions = _.filter(sourceTerrain, (pos) => {return pos.terrain !== "wall"});
 		for (var i2 = 0; i2 < workablePositions; i2++) {
 			var pos = workablePositions[i2];
 			var uid = `stationary_worker_${pos.x}_${pos.y}`;
