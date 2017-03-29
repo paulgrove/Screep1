@@ -13,13 +13,12 @@ Stage1.prototype._compilePlan = function () {
 	var plan = {
 		creepJobs: {}
 	};
-	var i = 0;
 	for (var i = 0; i < sources.length; i++) {
 		var source = sources[i];
 		var sourceTerrain = utils.getTerrain9GridFlatten(source.pos);
-		sourceTerrain[4] = "wall";
+		sourceTerrain[4] = {terrain: "wall"}; // never use the center tile
 		var workablePositions = _.filter(sourceTerrain, (pos) => {return pos.terrain !== "wall"});
-		for (var i2 = 0; i2 < workablePositions; i2++) {
+		for (var i2 = 0; i2 < workablePositions.length; i2++) {
 			var pos = workablePositions[i2];
 			var uid = `stationary_worker_${pos.x}_${pos.y}`;
 			plan.creepJobs[uid] = {
@@ -27,12 +26,16 @@ Stage1.prototype._compilePlan = function () {
 				role: "stationary_worker",
 				design: {
 					name: "lazy_employee",
-					work: 2,
-					carry: 1,
-					move: 1
+					body: [WORK, WORK, CARRY, MOVE],
 				},
-				pos: pos
+				creep: undefined,
+				harvestPos: pos,
+				sourceId: source.id
 			};
+			// assign previous creep if old job with same id exists
+			var oldPlan = this.roomCtl.plan();
+			if (oldPlan && oldPlan.creepJobs[uid])
+				plan.creepJobs[uid].creep = oldPlan.creepJobs[uid].creep;
 		}
 	}
 	return plan;
