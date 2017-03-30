@@ -13,6 +13,8 @@ if (!Memory.allocationTable)
 		{u: 0, d: {}},
 		{u: 0, d: {}}
 	];
+
+var lzstring = require("lz-string.min");
 var cache = {};
 
 function findFree(size) {
@@ -71,16 +73,18 @@ function _free(segi, name, alloc) {
 }
 
 function serialize(object, compress) {
-	return JSON.stringify(object);
+	var data = JSON.stringify(object);
+	if (compress)
+		data = lzstring.compress(data);
+	return data;
 }
 
 function deserialize(data, compress) {
-	console.log(data);
-	return JSON.parse(data);
+	return JSON.parse(compress ? lzstring.decompress(data) : data);
 }
 
 function save(name, object, compress) {
-	var data = serialize(object),
+	var data = serialize(object, compress),
 		alloc, segi;
 	if (!Memory.allocationSegment)
 		Memory.allocationSegment = {};
