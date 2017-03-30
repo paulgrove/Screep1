@@ -1,12 +1,4 @@
-function Job() {
-    this.workers = {};
-}
-
 function RoomController() {
-    this.updateCounter = 0;
-    this.jobId = 0;
-    this.jobs = [];
-    this.idleWorkers = [];
 }
 
 RoomController.prototype.getUpdatedStageClass = function () {
@@ -147,6 +139,8 @@ RoomController.prototype.getCurrentJobForCreep = function (creep) {
 RoomController.prototype.doActionsForCreep = function (creep) {
 	console.log("would action creep");
 	var job = this.getCurrentJobForCreep(creep);
+	var roleFunction = require("role_" + job.role);
+	roleFunction(creep, job);
 };
 
 RoomController.prototype.updatePlan = function () {
@@ -160,21 +154,6 @@ RoomController.prototype.updatePlan = function () {
 	this.plan(this.stage().compilePlan());
 	console.log("Assigned new plan for room " + room.name + " " + updatedStageClass);
 	return true;
-
-	/*console.log("Stage: " + this.getRoomStage(room));
-	var sources = room.find(FIND_SOURCES);
-	for (var i = 0; i < sources.length; i++) {
-		var source = sources[i]function guid() {
-		console.log("Looking at source " + i + " energy: " + source.energy);
-	}
-		*/
-	/*
-    for (var spawnName in Game.spawns) {
-        var spawn = Game.spawns[spawnName];
-        //console.log("Looking at spawn " + spawnName + " energy: " + spawn.energy);
-    }
-	*/
-    //console.log(this.updateCounter)
 };
 
 module.exports = RoomController;
