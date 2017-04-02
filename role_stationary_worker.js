@@ -6,14 +6,32 @@ function stationaryWorker(creep, job) {
 				creep.pos.room === job.harvestPos.room) {
 				creep.memory.currentGoal = {
 					type: "goal_harvest_source",
-					source: sourceId
+					source: job.sourceId
 				};
-					new GoalHarvestSource(Game.getObjectById(job.sourceId));
 			} else {
-				creep.memory.currentGoal = new
+				creep.memory.currentGoal = {
+					type: "goal_move_to",
+					pos: job.harvestPos
+				};
 			}
+		} else {
+			var unloadTarget = creep.findEnergyUnloadTarget();
+			if (!unloadTarget) {
+				console.log(`WARN: creep ${creep.name} has no unload target`);
+				return;
+			}
+			creep.memory.currentGoal = {
+				type: "goal_unload_to",
+				target: unloadTarget.id
+			};
 		}
 	}
+	var goal = require(creep.memory.currentGoal.type);
+	if (goal(creep, creep.memory.currentGoal)) {
+		delete creep.memory.currentGoal;
+	}
+
+	/*
 	if(creep.carry.energy < creep.carryCapacity) {
 		var sources = creep.room.find(FIND_SOURCES);
 		if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
@@ -33,6 +51,7 @@ function stationaryWorker(creep, job) {
 			}
 		}
 	}
+	*/
 };
 
 module.exports = stationaryWorker;
