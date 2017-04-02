@@ -20,14 +20,13 @@ var cache = {};
 function findFree(size) {
 	for (var segi = 0; segi <= 9; segi++) {
 		var alloc = Memory.allocationTable[segi];
-		if (100000 - alloc.u >= size)
+		if (102400 - alloc.u >= size)
 			return segi;
 	}
 	return undefined;
 }
 
 function _replace(segi, alloc, data) {
-	console.log("_replace");
 	RawMemory.segments[segi] =
 		RawMemory.segments[segi].substr(0, alloc.p) +
 		data +
@@ -36,10 +35,11 @@ function _replace(segi, alloc, data) {
 }
 
  function _malloc(segi, name, data, compress) {
-		console.log("_malloc");
 		segi = findFree(data.length);
-		if (segi === undefined)
+		if (segi === undefined) {
+			console.log(new Error("Alloc failed, out of memory"));
 			return false;
+		}
 		Memory.allocationSegment[name] = segi;
 		Memory.allocationTable[segi].d[name] = {
 			p: Memory.allocationTable[segi].u,
@@ -52,14 +52,12 @@ function _replace(segi, alloc, data) {
  }
 
 function _free(segi, name, alloc) {
-	console.log("_free");
 	Memory.allocationTable[segi].u -= alloc.s;
 	delete Memory.allocationTable[segi].d[name];
 	RawMemory.segments[segi] =
 		RawMemory.segments[segi].substr(0, alloc.p) +
 		RawMemory.segments[segi].substr(alloc.p + alloc.s);
 	var allocs = Memory.allocationTable[segi];
-	console.log(JSON.stringify(allocs));
 	for (var allocName in allocs.d) {
 		if (!allocName)
 			continue;
@@ -126,7 +124,6 @@ function load(name) {
 	var alloc = Memory.allocationTable[segi].d[name];
 	if (!alloc)
 		return undefined;
-	console.log(JSON.stringify(alloc));
 	return deserialize(RawMemory.segments[segi].substr(alloc.p, alloc.s), alloc.c);
 }
 

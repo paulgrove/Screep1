@@ -3,7 +3,7 @@ function RoomController() {
 
 RoomController.prototype.getUpdatedStageClass = function () {
     var stageClass = "Stage0";
-    if (this.room.find(FIND_MY_CREEPS) < 2)
+    if (this.room.find(FIND_MY_CREEPS).length < 2)
         stageClass = "Stage1";
     return stageClass;
 };
@@ -43,29 +43,29 @@ RoomController.prototype.run = function () {
 			console.log(`No plan for room ${this.room.name}`);
 			continue;
 		}
+		this.reclaimDeadCreepJobs();
 		this.runCreeps();
 		this.runSpawners();
 	}
 }
 
 RoomController.prototype.runSpawners = function () {
-	console.log("running spawners");
+	//console.log("running spawners");
 	var spawners = this.room.find(FIND_MY_SPAWNS);
 	for (var i = 0; i < spawners.length; i++) {
-		console.log(`spawner ${i}`);
+		//console.log(`spawner ${i}`);
 		var spawner = spawners[i];
 		if (spawner.spawning)
 			continue;
 		var unassignedJobs = _.filter(_.values(this.plan().creepJobs),
 			(job) => {return !job.creep});
 
-		console.log(`found ${unassignedJobs.length} unassigned jobs`);
+		//console.log(`found ${unassignedJobs.length} unassigned jobs`);
 		
 		for (var i2 = 0; i2 < unassignedJobs.length; i2++) {
 			var job = unassignedJobs[i2];
 			if (spawner.canCreateCreep(job.design.body) == OK) {
 				spawner.createCreep(job.design.body, null, {
-					jobId: job.id,
 					design: job.design
 				});
 			}
@@ -84,12 +84,12 @@ RoomController.prototype.checkTime = function (timerName, timeout) {
 }
 
 RoomController.prototype.runCreeps = function () {
-	console.log("running creeps");
+	//console.log("running creeps");
 	var plan = this.plan();
 	var creeps = this.room.find(FIND_MY_CREEPS);
 	for (var i = 0; i < creeps.length; i++) {
 		var creep = creeps[i];
-		console.log("running creep " + creep.name);
+		//console.log("running creep " + creep.name);
 		if (!creep.memory.jobId || !plan.creepJobs[creep.memory.jobId]) {
 			if (!this.findNewJobForCreep(creep)) {
 				creep.suicide();
@@ -102,7 +102,7 @@ RoomController.prototype.runCreeps = function () {
 
 RoomController.prototype.reclaimDeadCreepJobs = function () {
 	var plan = this.plan();
-	for (jobId in plan.creepJobs) {
+	for (var jobId in plan.creepJobs) {
 		var job = plan.creepJobs[jobId];
 		if (job.creep && !Game.creeps[job.creep])
 			job.creep = undefined;
@@ -113,7 +113,7 @@ RoomController.prototype.findNewJobForCreep = function (creep) {
 	var plan = this.plan();
 	var unassignedJobs = _.filter(_.values(plan.creepJobs),
 		(job) => {return !job.creep});
-	for (var i = 0; i < unassignedJobs; i++) {
+	for (var i = 0; i < unassignedJobs.length; i++) {
 		var jobProspect = unassignedJobs[i];
 		if (jobProspect.design.name === creep.memory.design.name) {
 			this.employCreep(creep, jobProspect);
@@ -126,7 +126,8 @@ RoomController.prototype.findNewJobForCreep = function (creep) {
 RoomController.prototype.employCreep = function (creep, job) {
 	console.log(`Employing ${creep.name} to ${job.id}`);
 	creep.memory.jobId = job.id;
-	this.plan().creepJobs[job.id].creep = creep.name;
+	//this.plan().creepJobs[job.id].creep = creep.name;
+	this.room.memory.plan.creepJobs[job.id].creep = creep.name;
 };
 
 RoomController.prototype.getCurrentJobForCreep = function (creep) {
@@ -137,7 +138,7 @@ RoomController.prototype.getCurrentJobForCreep = function (creep) {
 };
 
 RoomController.prototype.doActionsForCreep = function (creep) {
-	console.log("would action creep");
+	//console.log("Action creep " + creep.name);
 	var job = this.getCurrentJobForCreep(creep);
 	var roleFunction = require("role_" + job.role);
 	roleFunction(creep, job);
@@ -146,13 +147,13 @@ RoomController.prototype.doActionsForCreep = function (creep) {
 RoomController.prototype.updatePlan = function () {
 	if (!this.checkTime("plan", 30))
 		return false;
-	console.log(`Checking plan for room ${this.room.name}`);
+	//console.log(`Checking plan for room ${this.room.name}`);
 	var updatedStageClass = this.getUpdatedStageClass();
 	if (this.plan() && this.stageClass() === updatedStageClass)
 		return false; // skip rooms which are still on the right stage
 	this.stageClass(updatedStageClass);
 	this.plan(this.stage().compilePlan());
-	console.log("Assigned new plan for room " + room.name + " " + updatedStageClass);
+	//console.log("Assigned new plan for room " + room.name + " " + updatedStageClass);
 	return true;
 };
 
